@@ -15,19 +15,24 @@ using System.Windows.Shapes;
 
 namespace AlertBarWpf
 {
-    /// <summary>
-    /// Interaction logic for UserControl1.xaml
-    /// </summary>
     public partial class AlertBarWpf : UserControl
     {
+        private ThemeType theme = ThemeType.Standard;
+
+        public enum ThemeType
+        {
+            Standard = 0,
+            Outline = 1
+        }
+
         public AlertBarWpf()
         {
             InitializeComponent();
-            // grdWrapper.DataContext = this;
         }
 
+        #region Show event
 
-        public static readonly RoutedEvent ShowEvent = EventManager.RegisterRoutedEvent("Show", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(AlertBarWpf));
+        public static readonly RoutedEvent ShowEvent = EventManager.RegisterRoutedEvent(nameof(Show), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(AlertBarWpf));
 
         public event RoutedEventHandler Show
         {
@@ -35,91 +40,40 @@ namespace AlertBarWpf
             remove { RemoveHandler(ShowEvent, value); }
         }
 
-        private void RaiseShowEvent()
+        private void raiseShowEvent()
         {
             RoutedEventArgs newEventArgs = new RoutedEventArgs(AlertBarWpf.ShowEvent);
             RaiseEvent(newEventArgs);
         }
 
-        private void TransformStage(string msg, int secs, string colorhex, string iconsrc)
+        #endregion
+
+        #region properties
+
+        /// <summary>
+        /// Hide or show icons in the messages.
+        /// </summary>
+        public bool IsIconVisible { get; set; } = true;
+
+        public ThemeType Theme
         {
-
-
-            SolidColorBrush bg = new SolidColorBrush();
-            bg = (SolidColorBrush)(new BrushConverter().ConvertFrom(colorhex));
-
-            Grid grdParent;
-            switch (_Theme)
+            get { return theme; }
+            set
             {
-                case ThemeType.Standard:
-                    spStandard.Visibility = System.Windows.Visibility.Visible;
-                    spOutline.Visibility = System.Windows.Visibility.Collapsed;
-
-                    grdParent = FindVisualChildren<Grid>(spStandard).FirstOrDefault();
-                    grdParent.Background = bg;
-                    break;
-                case ThemeType.Outline:
-                default:
-                    spStandard.Visibility = System.Windows.Visibility.Collapsed;
-                    spOutline.Visibility = System.Windows.Visibility.Visible;
-
-                    grdParent = FindVisualChildren<Grid>(spOutline).FirstOrDefault();
-                    bdr.BorderBrush = bg;
-                    break;
-            }
-
-            TextBlock lblMessage = FindVisualChildren<TextBlock>(grdParent).FirstOrDefault();
-            List<Image> imgs = FindVisualChildren<Image>(grdParent).ToList();
-            Image imgStatusIcon = imgs[0];
-            Image imgCloseIcon = imgs[1];
-
-
-            if (_IconVisibility == false)
-            {
-                imgStatusIcon.Visibility = System.Windows.Visibility.Collapsed;
-                grdParent.ColumnDefinitions.RemoveAt(0);
-                lblMessage.SetValue(Grid.ColumnProperty, 0);
-                imgCloseIcon.SetValue(Grid.ColumnProperty, 1);
-                lblMessage.Margin = new Thickness(10, 4, 0, 4);
-                lblMessage.Height = 16;
-            }
-            else
-            {
-                imgStatusIcon.Source = new BitmapImage(new Uri("/AlertBarWpf;component/Resources/" + iconsrc, UriKind.Relative));
-            }
-
-
-
-
-            lblMessage.Text = msg;
-            grdWrapper.Visibility = System.Windows.Visibility.Visible;
-            key1.KeyTime = new TimeSpan(0, 0, (secs == 0 ? 0 : secs - 1));
-            key2.KeyTime = new TimeSpan(0, 0, secs);
-            RaiseShowEvent();
-        }
-
-
-
-        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
-        {
-            if (depObj != null)
-            {
-                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                if (Enum.IsDefined(typeof(ThemeType), value))
                 {
-                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
-                    if (child != null && child is T)
-                    {
-                        yield return (T)child;
-                    }
-
-                    foreach (T childOfChild in FindVisualChildren<T>(child))
-                    {
-                        yield return childOfChild;
-                    }
+                    theme = value;
+                }
+                else
+                {
+                    theme = ThemeType.Standard;
                 }
             }
         }
 
+        public TextWrapping TextWrappingToUse { get; set; } = TextWrapping.NoWrap;
+
+        #endregion       
 
         /// <summary>
         /// Shows a Danger Alert
@@ -130,7 +84,7 @@ namespace AlertBarWpf
         {
             string color = "#D9534F";
             string icon = "danger_16.png";
-            TransformStage(message, timeoutInSeconds, color, icon);
+            transformStage(message, timeoutInSeconds, color, icon);
         }
 
         /// <summary>
@@ -143,7 +97,7 @@ namespace AlertBarWpf
             string color = "#F0AD4E";
             string icon = "warning_16.png";
 
-            TransformStage(message, timeoutInSeconds, color, icon);
+            transformStage(message, timeoutInSeconds, color, icon);
         }
 
         /// <summary>
@@ -155,9 +109,8 @@ namespace AlertBarWpf
         {
             string color = "#5CB85C";
             string icon = "success_16.png";
-            TransformStage(message, timeoutInSeconds, color, icon);
+            transformStage(message, timeoutInSeconds, color, icon);
         }
-
 
         /// <summary>
         /// Shows an Information Alert
@@ -168,69 +121,18 @@ namespace AlertBarWpf
         {
             string color = "#5BC0DE";
             string icon = "information_16.png";
-            TransformStage(message, timeoutInSeconds, color, icon);
+            transformStage(message, timeoutInSeconds, color, icon);
         }
-
-
-        public enum ThemeType
-        {
-            Standard = 0,
-            Outline = 1
-        }
-
-        private ThemeType _Theme = ThemeType.Standard;
-        private bool _IconVisibility = true;
-
-        /// <summary>
-        /// Hide or show icons in the messages.
-        /// </summary>
-        public bool? IconVisibility
-        {
-            set
-            {
-                if (value == null)
-                {
-                    return;
-                }
-                _IconVisibility = value ?? false;
-            }
-            get
-            {
-                return _IconVisibility;
-            }
-        }
-
-
-
-        public ThemeType? Theme
-        {
-            set
-            {
-                if (value == null)
-                {
-                    return;
-                }
-                if (Enum.IsDefined(typeof(ThemeType), value))
-                {
-                    _Theme = value ?? ThemeType.Standard;
-                }
-            }
-
-            get
-            {
-                return _Theme;
-            }
-        }
-
-
 
         /// <summary>
         /// Remove a message if one is currently being shown.
         /// </summary>
         public void Clear()
         {
-            grdWrapper.Visibility = System.Windows.Visibility.Collapsed;
+            grdWrapper.Visibility = Visibility.Collapsed;
         }
+
+        #region eventhandler
 
         private void Image_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -249,6 +151,139 @@ namespace AlertBarWpf
                 }
             }
         }
+
+        #endregion
+
+        #region helper methods
+
+        private void transformStage(string messageToDisplay, int secs, string colorhex, string iconsrc)
+        {
+            SolidColorBrush backgroundBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom(colorhex));
+            //alternative:
+            //SolidColorBrush backgroundBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorhex));
+
+            Grid parentGrid;
+            switch (theme)
+            {
+                case ThemeType.Standard:
+                    spStandard.Visibility = Visibility.Visible;
+                    spOutline.Visibility = Visibility.Collapsed;
+
+                    parentGrid = findVisualChildren<Grid>(spStandard).FirstOrDefault();
+                    parentGrid.Background = backgroundBrush;
+                    break;
+                case ThemeType.Outline:
+                default:
+                    spStandard.Visibility = Visibility.Collapsed;
+                    spOutline.Visibility = Visibility.Visible;
+
+                    parentGrid = findVisualChildren<Grid>(spOutline).FirstOrDefault();
+                    bdr.BorderBrush = backgroundBrush;
+                    break;
+            }
+
+            TextBlock lblMessage = findVisualChildren<TextBlock>(parentGrid).FirstOrDefault();
+            List<Image> imgs = findVisualChildren<Image>(parentGrid).ToList();
+            Image imgStatusIcon = imgs[0];
+            Image imgCloseIcon = imgs[1];
+
+            if (!IsIconVisible)
+            {
+                imgStatusIcon.Visibility = Visibility.Collapsed;
+                parentGrid.ColumnDefinitions[0].Width = GridLength.Auto;
+                lblMessage.Margin = new Thickness(10, 4, 0, 4);
+            }
+            else
+            {
+                imgStatusIcon.Visibility = Visibility.Visible;
+                parentGrid.ColumnDefinitions[0].Width = new GridLength(26, GridUnitType.Pixel);
+                lblMessage.Margin = new Thickness(5, 0, 5, 0);
+
+                imgStatusIcon.Source = new BitmapImage(new Uri("/AlertBarWpf;component/Resources/" + iconsrc, UriKind.Relative));
+            }
+
+            lblMessage.Text = messageToDisplay;
+            lblMessage.TextWrapping = TextWrappingToUse;
+
+            grdWrapper.Visibility = Visibility.Visible;
+            key1.KeyTime = new TimeSpan(0, 0, (secs == 0 ? 0 : secs - 1));
+            key2.KeyTime = new TimeSpan(0, 0, secs);
+            raiseShowEvent();
+        }
+
+        //https://stackoverflow.com/a/978352
+        private static IEnumerable<T> findVisualChildren<T>(DependencyObject dependencyObject) where T : DependencyObject
+        {
+            if (dependencyObject == null)
+            {
+                yield break;
+            }
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(dependencyObject); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(dependencyObject, i);
+                if (child != null && child is T)
+                {
+                    yield return (T)child;
+                }
+
+                foreach (T childOfChild in findVisualChildren<T>(child))
+                {
+                    yield return childOfChild;
+                }
+            }
+        }
+
+        //https://stackoverflow.com/a/32902458
+        private static IEnumerable<T> findVisualChildrenRecursive<T>(DependencyObject dependencyObject) where T : DependencyObject
+        {
+            if (dependencyObject == null)
+            {
+                yield break;
+            }
+
+            if (dependencyObject is T)
+            {
+                yield return (T)dependencyObject;
+            }
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(dependencyObject); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(dependencyObject, i);
+                foreach (T childOfChild in findVisualChildrenRecursive<T>(child))
+                {
+                    yield return childOfChild;
+                }
+            }
+        }
+
+        //https://stackoverflow.com/a/23836877
+        private static IEnumerable<T> findLogicalChildren<T>(DependencyObject dependencyObject) where T : DependencyObject
+        {
+            if (dependencyObject == null)
+            {
+                yield break;
+            }
+
+            foreach (object rawChild in LogicalTreeHelper.GetChildren(dependencyObject))
+            {
+                if (rawChild is DependencyObject)
+                {
+                    DependencyObject child = (DependencyObject)rawChild;
+                    if (child is T)
+                    {
+                        yield return (T)child;
+                    }
+
+                    foreach (T childOfChild in findLogicalChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
+            }
+        }
+
+        #endregion
 
     }
 }
