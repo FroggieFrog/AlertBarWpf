@@ -29,10 +29,10 @@ namespace AlertBarWpfExample
 
         private void btnWarning_Click(object sender, RoutedEventArgs e)
         {
-            clearAll();
-            setIsIconVisible();
+            ClearAll();
+            SetIsIconVisible();
 
-            var text = "This is a warning." + getText();
+            var text = "This is a warning." + GetText();
 
             if (chkUseOutlineTheme.IsChecked.HasValue && chkUseOutlineTheme.IsChecked != true)
             {
@@ -46,10 +46,10 @@ namespace AlertBarWpfExample
 
         private void btnInfo_Click(object sender, RoutedEventArgs e)
         {
-            clearAll();
-            setIsIconVisible();
+            ClearAll();
+            SetIsIconVisible();
 
-            var text = "This is an information." + getText();
+            var text = "This is an information." + GetText();
 
             if (chkUseOutlineTheme.IsChecked.HasValue && chkUseOutlineTheme.IsChecked != true)
             {
@@ -63,10 +63,10 @@ namespace AlertBarWpfExample
 
         private void btnSuccess_Click(object sender, RoutedEventArgs e)
         {
-            clearAll();
-            setIsIconVisible();
+            ClearAll();
+            SetIsIconVisible();
 
-            var text = "This is a success." + getText();
+            var text = "This is a success." + GetText();
 
             if (chkUseOutlineTheme.IsChecked.HasValue && chkUseOutlineTheme.IsChecked != true)
             {
@@ -80,10 +80,10 @@ namespace AlertBarWpfExample
 
         private void btnError_Click(object sender, RoutedEventArgs e)
         {
-            clearAll();
-            setIsIconVisible();
+            ClearAll();
+            SetIsIconVisible();
 
-            var text = "This is an error." + getText();
+            var text = "This is an error." + GetText();
 
             if (chkUseOutlineTheme.IsChecked.HasValue && chkUseOutlineTheme.IsChecked != true)
             {
@@ -95,13 +95,13 @@ namespace AlertBarWpfExample
             }
         }
 
-        private void clearAll()
+        private void ClearAll()
         {
             msgbar.Clear();
             msgbarOutline.Clear();
         }
 
-        private void setIsIconVisible()
+        private void SetIsIconVisible()
         {
             if (chkDisplayIcons.IsChecked.HasValue && chkDisplayIcons.IsChecked != true)
             {
@@ -115,14 +115,15 @@ namespace AlertBarWpfExample
             }
         }
 
-        private string getText()
+        private string GetText()
         {
-            var result = String.Empty;
+            var result = string.Empty;
 
             if (chkUseLongText.IsChecked.HasValue && chkUseLongText.IsChecked == true)
             {
                 result = $"{Environment.NewLine}{LONG_TEXT}";
             }
+
             return result;
         }
     }

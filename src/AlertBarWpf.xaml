@@ -29,16 +29,14 @@
                 </Storyboard>
             </BeginStoryboard>
         </EventTrigger>
-
     </UserControl.Triggers>
-
 
     <Grid Name="grdWrapper"
           Visibility="Collapsed">
 
-        <StackPanel Name="spStandard"
+        <StackPanel x:Name="spStandard"
                     Visibility="Collapsed">
-            <Grid>
+            <Grid x:Name="gridStandard">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="26" />
                     <ColumnDefinition Width="*" />
@@ -79,13 +77,13 @@
             </Grid>
         </StackPanel>
 
-        <StackPanel Name="spOutline"
+        <StackPanel x:Name="spOutline"
                     Visibility="Collapsed">
             <Border Name="bdr"
                     BorderThickness="2"
                     CornerRadius="5">
                 <StackPanel>
-                    <Grid>
+                    <Grid x:Name="gridOutline">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="26" />
                             <ColumnDefinition Width="*" />
